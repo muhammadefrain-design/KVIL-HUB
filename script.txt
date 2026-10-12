@@ -1,0 +1,655 @@
+-- KV HUB 2.1V | estilo neón (como la captura)
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UIS = game:GetService("UserInputService")
+local Workspace = game:GetService("Workspace")
+local LocalPlayer = Players.LocalPlayer
+local Camera = Workspace.CurrentCamera
+
+local parentContainer
+if gethui then
+	parentContainer = gethui()
+elseif syn and syn.protect_gui then
+	local f = Instance.new("Folder")
+	syn.protect_gui(f)
+	f.Parent = LocalPlayer:WaitForChild("PlayerGui")
+	parentContainer = f
+else
+	parentContainer = LocalPlayer:WaitForChild("PlayerGui")
+end
+
+pcall(function()
+	if parentContainer:FindFirstChild("KVHub21") then
+		parentContainer.KVHub21:Destroy()
+	end
+end)
+
+-- Colores neón (como la captura)
+local BG = Color3.fromRGB(8, 10, 22)
+local BG2 = Color3.fromRGB(12, 16, 36)
+local SIDE = Color3.fromRGB(10, 12, 28)
+local CYAN = Color3.fromRGB(0, 220, 255)
+local PURPLE = Color3.fromRGB(140, 80, 255)
+local GREEN = Color3.fromRGB(40, 220, 120)
+local WHITE = Color3.fromRGB(235, 240, 255)
+local MUTED = Color3.fromRGB(130, 140, 170)
+local ROW = Color3.fromRGB(16, 20, 42)
+local OFF = Color3.fromRGB(50, 55, 80)
+
+local SilentOn, AimOn, HitboxOn, EspOn = false, false, false, false
+local JumpOn, NoclipOn = false, false
+local AutoShotOn, AutoKillOn, AutoEquipOn = false, false, false
+local HitboxSize = 5
+
+local R6_DEFAULT_WALK = "rbxassetid://180426354"
+local R6_DEFAULT_RUN  = "rbxassetid://180426354"
+local R6_ANIMS = {
+	Zombie = { Walk = "rbxassetid://616158929", Run = "rbxassetid://616163682" },
+	Ninja  = { Walk = "rbxassetid://656117863", Run = "rbxassetid://656118341" },
+	Robot  = { Walk = "rbxassetid://616163682", Run = "rbxassetid://616165109" },
+}
+
+local Gui = Instance.new("ScreenGui")
+Gui.Name = "KVHub21"
+Gui.ResetOnSpawn = false
+Gui.IgnoreGuiInset = true
+Gui.Parent = parentContainer
+
+-- Botón flotante
+local OpenBtn = Instance.new("TextButton")
+OpenBtn.Size = UDim2.fromOffset(48, 48)
+OpenBtn.Position = UDim2.new(0, 12, 0.3, 0)
+OpenBtn.BackgroundColor3 = BG2
+OpenBtn.Text = "KV"
+OpenBtn.TextColor3 = CYAN
+OpenBtn.TextSize = 14
+OpenBtn.Font = Enum.Font.GothamBold
+OpenBtn.Parent = Gui
+Instance.new("UICorner", OpenBtn).CornerRadius = UDim.new(1, 0)
+local os1 = Instance.new("UIStroke", OpenBtn)
+os1.Color = CYAN
+os1.Thickness = 2
+
+-- Panel principal
+local Main = Instance.new("Frame")
+Main.Size = UDim2.fromOffset(540, 360)
+Main.Position = UDim2.new(0.5, -270, 0.5, -180)
+Main.BackgroundColor3 = BG
+Main.BorderSizePixel = 0
+Main.Visible = false
+Main.Parent = Gui
+Instance.new("UICorner", Main).CornerRadius = UDim.new(0, 14)
+local ms = Instance.new("UIStroke", Main)
+ms.Color = CYAN
+ms.Thickness = 2
+ms.Transparency = 0.2
+
+-- Header neón
+local Header = Instance.new("Frame")
+Header.Size = UDim2.new(1, 0, 0, 44)
+Header.BackgroundColor3 = BG2
+Header.BorderSizePixel = 0
+Header.Parent = Main
+Instance.new("UICorner", Header).CornerRadius = UDim.new(0, 14)
+local hs = Instance.new("UIStroke", Header)
+hs.Color = PURPLE
+hs.Thickness = 1
+hs.Transparency = 0.4
+
+local Crown = Instance.new("TextLabel")
+Crown.Size = UDim2.fromOffset(28, 44)
+Crown.Position = UDim2.fromOffset(10, 0)
+Crown.BackgroundTransparency = 1
+Crown.Text = "♛"
+Crown.TextColor3 = CYAN
+Crown.TextSize = 18
+Crown.Font = Enum.Font.GothamBold
+Crown.Parent = Header
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(0, 200, 1, 0)
+Title.Position = UDim2.fromOffset(38, 0)
+Title.BackgroundTransparency = 1
+Title.Text = "KV HUB  2.1V"
+Title.TextColor3 = CYAN
+Title.TextSize = 16
+Title.Font = Enum.Font.GothamBold
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.Parent = Header
+
+local Sub = Instance.new("TextLabel")
+Sub.Size = UDim2.new(0, 140, 1, 0)
+Sub.Position = UDim2.new(1, -180, 0, 0)
+Sub.BackgroundTransparency = 1
+Sub.Text = "TU JUEGO · TU CONTROL"
+Sub.TextColor3 = MUTED
+Sub.TextSize = 10
+Sub.Font = Enum.Font.Gotham
+Sub.TextXAlignment = Enum.TextXAlignment.Right
+Sub.Parent = Header
+
+local CloseBtn = Instance.new("TextButton")
+CloseBtn.Size = UDim2.fromOffset(28, 28)
+CloseBtn.Position = UDim2.new(1, -36, 0.5, -14)
+CloseBtn.BackgroundColor3 = Color3.fromRGB(30, 20, 50)
+CloseBtn.Text = "X"
+CloseBtn.TextColor3 = WHITE
+CloseBtn.TextSize = 13
+CloseBtn.Font = Enum.Font.GothamBold
+CloseBtn.Parent = Header
+Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(0, 6)
+Instance.new("UIStroke", CloseBtn).Color = PURPLE
+
+-- Sidebar
+local Side = Instance.new("Frame")
+Side.Size = UDim2.new(0, 130, 1, -44)
+Side.Position = UDim2.fromOffset(0, 44)
+Side.BackgroundColor3 = SIDE
+Side.BorderSizePixel = 0
+Side.Parent = Main
+
+local sideStroke = Instance.new("UIStroke", Side)
+sideStroke.Color = PURPLE
+sideStroke.Thickness = 1
+sideStroke.Transparency = 0.5
+
+local SideTitle = Instance.new("TextLabel")
+SideTitle.Size = UDim2.new(1, -12, 0, 22)
+SideTitle.Position = UDim2.fromOffset(10, 8)
+SideTitle.BackgroundTransparency = 1
+SideTitle.Text = "⌂  PRINCIPAL"
+SideTitle.TextColor3 = CYAN
+SideTitle.TextSize = 11
+SideTitle.Font = Enum.Font.GothamBold
+SideTitle.TextXAlignment = Enum.TextXAlignment.Left
+SideTitle.Parent = Side
+
+local SideList = Instance.new("UIListLayout")
+SideList.Padding = UDim.new(0, 4)
+SideList.SortOrder = Enum.SortOrder.LayoutOrder
+SideList.Parent = Side
+local sidePad = Instance.new("UIPadding")
+sidePad.PaddingTop = UDim.new(0, 34)
+sidePad.PaddingLeft = UDim.new(0, 8)
+sidePad.PaddingRight = UDim.new(0, 8)
+sidePad.Parent = Side
+
+-- Content
+local Content = Instance.new("ScrollingFrame")
+Content.Size = UDim2.new(1, -140, 1, -54)
+Content.Position = UDim2.fromOffset(136, 50)
+Content.BackgroundTransparency = 1
+Content.BorderSizePixel = 0
+Content.ScrollBarThickness = 3
+Content.CanvasSize = UDim2.new(0, 0, 0, 0)
+Content.Parent = Main
+
+local CL = Instance.new("UIListLayout")
+CL.Padding = UDim.new(0, 6)
+CL.SortOrder = Enum.SortOrder.LayoutOrder
+CL.Parent = Content
+CL:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+	Content.CanvasSize = UDim2.new(0, 0, 0, CL.AbsoluteContentSize.Y + 16)
+end)
+
+local function Clear()
+	for _, c in ipairs(Content:GetChildren()) do
+		if c:IsA("GuiObject") and not (c == CL) then c:Destroy() end
+	end
+end
+
+local function Section(title, sub)
+	local f = Instance.new("Frame")
+	f.Size = UDim2.new(1, -6, 0, 28)
+	f.BackgroundTransparency = 1
+	f.Parent = Content
+	local t = Instance.new("TextLabel")
+	t.Size = UDim2.new(0.55, 0, 1, 0)
+	t.BackgroundTransparency = 1
+	t.Text = "◎  " .. title
+	t.TextColor3 = CYAN
+	t.TextSize = 13
+	t.Font = Enum.Font.GothamBold
+	t.TextXAlignment = Enum.TextXAlignment.Left
+	t.Parent = f
+	if sub then
+		local s = Instance.new("TextLabel")
+		s.Size = UDim2.new(0.45, -4, 1, 0)
+		s.Position = UDim2.new(0.55, 0, 0, 0)
+		s.BackgroundTransparency = 1
+		s.Text = sub
+		s.TextColor3 = MUTED
+		s.TextSize = 9
+		s.Font = Enum.Font.Gotham
+		s.TextXAlignment = Enum.TextXAlignment.Right
+		s.Parent = f
+	end
+end
+
+local function Note(t)
+	local l = Instance.new("TextLabel")
+	l.Size = UDim2.new(1, -6, 0, 16)
+	l.BackgroundTransparency = 1
+	l.Text = t
+	l.TextColor3 = MUTED
+	l.TextSize = 10
+	l.Font = Enum.Font.Gotham
+	l.TextXAlignment = Enum.TextXAlignment.Left
+	l.Parent = Content
+end
+
+-- Toggle estilo captura (fila + switch)
+local function ToggleRow(name, desc, on, cb)
+	local row = Instance.new("Frame")
+	row.Size = UDim2.new(1, -6, 0, 48)
+	row.BackgroundColor3 = ROW
+	row.Parent = Content
+	Instance.new("UICorner", row).CornerRadius = UDim.new(0, 10)
+	local rs = Instance.new("UIStroke", row)
+	rs.Color = on and CYAN or Color3.fromRGB(40, 45, 80)
+	rs.Thickness = 1
+	rs.Transparency = on and 0.3 or 0.6
+
+	local n = Instance.new("TextLabel")
+	n.Size = UDim2.new(1, -70, 0, 20)
+	n.Position = UDim2.fromOffset(12, 6)
+	n.BackgroundTransparency = 1
+	n.Text = name .. "  [" .. (on and "ON" or "OFF") .. "]"
+	n.TextColor3 = on and GREEN or WHITE
+	n.TextSize = 12
+	n.Font = Enum.Font.GothamBold
+	n.TextXAlignment = Enum.TextXAlignment.Left
+	n.Parent = row
+
+	local d = Instance.new("TextLabel")
+	d.Size = UDim2.new(1, -70, 0, 16)
+	d.Position = UDim2.fromOffset(12, 26)
+	d.BackgroundTransparency = 1
+	d.Text = desc
+	d.TextColor3 = MUTED
+	d.TextSize = 10
+	d.Font = Enum.Font.Gotham
+	d.TextXAlignment = Enum.TextXAlignment.Left
+	d.Parent = row
+
+	-- switch
+	local track = Instance.new("Frame")
+	track.Size = UDim2.fromOffset(40, 22)
+	track.Position = UDim2.new(1, -52, 0.5, -11)
+	track.BackgroundColor3 = on and Color3.fromRGB(0, 160, 200) or OFF
+	track.Parent = row
+	Instance.new("UICorner", track).CornerRadius = UDim.new(1, 0)
+
+	local knob = Instance.new("Frame")
+	knob.Size = UDim2.fromOffset(18, 18)
+	knob.Position = on and UDim2.new(1, -20, 0.5, -9) or UDim2.new(0, 2, 0.5, -9)
+	knob.BackgroundColor3 = WHITE
+	knob.Parent = track
+	Instance.new("UICorner", knob).CornerRadius = UDim.new(1, 0)
+
+	local btn = Instance.new("TextButton")
+	btn.Size = UDim2.new(1, 0, 1, 0)
+	btn.BackgroundTransparency = 1
+	btn.Text = ""
+	btn.Parent = row
+	btn.Activated:Connect(cb)
+	return row
+end
+
+local function SideBtn(name, order, fn)
+	local b = Instance.new("TextButton")
+	b.Size = UDim2.new(1, 0, 0, 32)
+	b.BackgroundColor3 = Color3.fromRGB(18, 22, 48)
+	b.Text = "  " .. name
+	b.TextColor3 = WHITE
+	b.TextSize = 11
+	b.Font = Enum.Font.GothamMedium
+	b.TextXAlignment = Enum.TextXAlignment.Left
+	b.LayoutOrder = order
+	b.Parent = Side
+	Instance.new("UICorner", b).CornerRadius = UDim.new(0, 8)
+	b.Activated:Connect(function()
+		for _, x in ipairs(Side:GetChildren()) do
+			if x:IsA("TextButton") then
+				x.BackgroundColor3 = Color3.fromRGB(18, 22, 48)
+				x.TextColor3 = WHITE
+			end
+		end
+		b.BackgroundColor3 = Color3.fromRGB(20, 40, 80)
+		b.TextColor3 = CYAN
+		fn()
+	end)
+	return b
+end
+
+-- Logic helpers
+local function setR6Anim(walkId, runId)
+	local char = LocalPlayer.Character
+	if not char then return end
+	local animate = char:FindFirstChild("Animate")
+	if not animate then return end
+	pcall(function()
+		if animate:FindFirstChild("walk") and animate.walk:FindFirstChild("WalkAnim") then
+			animate.walk.WalkAnim.AnimationId = walkId
+		end
+		if animate:FindFirstChild("run") and animate.run:FindFirstChild("RunAnim") then
+			animate.run.RunAnim.AnimationId = runId
+		end
+	end)
+end
+
+local function PlayAnim(name)
+	local data = R6_ANIMS[name]
+	if data then setR6Anim(data.Walk, data.Run) end
+end
+local function StopAnim()
+	setR6Anim(R6_DEFAULT_WALK, R6_DEFAULT_RUN)
+end
+
+local function GetHead()
+	local root = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+	if not root then return nil end
+	local best, short = nil, 250
+	for _, plr in ipairs(Players:GetPlayers()) do
+		if not (plr == LocalPlayer) and plr.Character then
+			local head = plr.Character:FindFirstChild("Head")
+			local hum = plr.Character:FindFirstChildOfClass("Humanoid")
+			if head and hum and hum.Health > 0 then
+				local d = (head.Position - root.Position).Magnitude
+				if d < short then short = d best = head end
+			end
+		end
+	end
+	return best
+end
+
+local function MasCercano(maxD)
+	local root = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+	if not root then return nil end
+	local best, bestD = nil, maxD
+	for _, plr in ipairs(Players:GetPlayers()) do
+		if not (plr == LocalPlayer) and plr.Character then
+			local r = plr.Character:FindFirstChild("HumanoidRootPart")
+			local h = plr.Character:FindFirstChildOfClass("Humanoid")
+			if r and h and h.Health > 0 then
+				local d = (r.Position - root.Position).Magnitude
+				if d < bestD then bestD = d best = plr end
+			end
+		end
+	end
+	return best
+end
+
+local function EquiparArma()
+	local char = LocalPlayer.Character
+	local hum = char and char:FindFirstChildOfClass("Humanoid")
+	if not hum then return nil end
+	local names = {"Gun", "gun", "Revolver", "Pistol", "Knife", "knife", "Cuchillo"}
+	for _, n in ipairs(names) do
+		local t = char:FindFirstChild(n)
+		if t and t:IsA("Tool") then return t end
+	end
+	local bp = LocalPlayer:FindFirstChild("Backpack")
+	if bp then
+		for _, n in ipairs(names) do
+			local t = bp:FindFirstChild(n)
+			if t and t:IsA("Tool") then hum:EquipTool(t) return t end
+		end
+	end
+	return nil
+end
+
+local hitboxParts = {}
+local function ClearHitbox()
+	for _, parts in pairs(hitboxParts) do
+		for _, p in ipairs(parts) do pcall(function() p:Destroy() end) end
+	end
+	hitboxParts = {}
+end
+
+local function ApplyHitbox()
+	ClearHitbox()
+	if not HitboxOn then return end
+	for _, plr in ipairs(Players:GetPlayers()) do
+		if not (plr == LocalPlayer) and plr.Character then
+			local list = {}
+			for _, part in ipairs(plr.Character:GetDescendants()) do
+				if part:IsA("BasePart") and (part.Name == "Head" or part.Name == "HumanoidRootPart" or part.Name == "Torso" or part.Name == "UpperTorso") then
+					local box = Instance.new("Part")
+					box.Name = "HB_KV"
+					box.Size = Vector3.new(HitboxSize, HitboxSize, HitboxSize)
+					box.Transparency = 0.88
+					box.Color = Color3.fromRGB(255, 60, 60)
+					box.Material = Enum.Material.Neon
+					box.CanCollide = false
+					box.Massless = true
+					box.CFrame = part.CFrame
+					box.Parent = part
+					local w = Instance.new("WeldConstraint")
+					w.Part0 = part
+					w.Part1 = box
+					w.Parent = box
+					table.insert(list, box)
+				end
+			end
+			hitboxParts[plr] = list
+		end
+	end
+end
+
+local ESPFolder = Instance.new("Folder")
+ESPFolder.Name = "ESP_KV"
+ESPFolder.Parent = Gui
+
+local function LimpiarESP()
+	for _, v in ipairs(ESPFolder:GetChildren()) do v:Destroy() end
+end
+
+local function ActualizarESP()
+	LimpiarESP()
+	if not EspOn then return end
+	for _, plr in ipairs(Players:GetPlayers()) do
+		if not (plr == LocalPlayer) and plr.Character then
+			local h = Instance.new("Highlight")
+			h.Adornee = plr.Character
+			h.FillColor = CYAN
+			h.OutlineColor = PURPLE
+			h.FillTransparency = 0.55
+			h.Parent = ESPFolder
+		end
+	end
+end
+
+-- Pages
+local function PageInicio()
+	Clear()
+	Section("INICIO", "BIENVENIDO")
+	Note("KV Hub 2.1V  ·  estado: activos")
+	local hero = Instance.new("Frame")
+	hero.Size = UDim2.new(1, -6, 0, 120)
+	hero.BackgroundColor3 = ROW
+	hero.Parent = Content
+	Instance.new("UICorner", hero).CornerRadius = UDim.new(0, 12)
+	Instance.new("UIStroke", hero).Color = CYAN
+	local ht = Instance.new("TextLabel")
+	ht.Size = UDim2.new(1, -16, 0, 28)
+	ht.Position = UDim2.fromOffset(12, 16)
+	ht.BackgroundTransparency = 1
+	ht.Text = "♛  KV HUB  2.1V"
+	ht.TextColor3 = CYAN
+	ht.TextSize = 18
+	ht.Font = Enum.Font.GothamBold
+	ht.TextXAlignment = Enum.TextXAlignment.Left
+	ht.Parent = hero
+	local hs2 = Instance.new("TextLabel")
+	hs2.Size = UDim2.new(1, -16, 0, 20)
+	hs2.Position = UDim2.fromOffset(12, 50)
+	hs2.BackgroundTransparency = 1
+	hs2.Text = "Tu juego · Tu control"
+	hs2.TextColor3 = MUTED
+	hs2.TextSize = 12
+	hs2.Font = Enum.Font.Gotham
+	hs2.TextXAlignment = Enum.TextXAlignment.Left
+	hs2.Parent = hero
+	local hn = Instance.new("TextLabel")
+	hn.Size = UDim2.new(1, -16, 0, 18)
+	hn.Position = UDim2.fromOffset(12, 85)
+	hn.BackgroundTransparency = 1
+	hn.Text = "Elige una categoria a la izquierda"
+	hn.TextColor3 = WHITE
+	hn.TextSize = 11
+	hn.Font = Enum.Font.Gotham
+	hn.TextXAlignment = Enum.TextXAlignment.Left
+	hn.Parent = hero
+end
+
+local function PageAimbot()
+	Clear()
+	Section("AIMBOT", "DISPARA CON PRECISION")
+	ToggleRow("Auto Shot", "Dispara automaticamente al enemigo.", AutoShotOn, function()
+		AutoShotOn = not AutoShotOn
+		PageAimbot()
+	end)
+	ToggleRow("Auto Kills", "Mata y acerca enemigos automaticamente.", AutoKillOn, function()
+		AutoKillOn = not AutoKillOn
+		PageAimbot()
+	end)
+	ToggleRow("Auto Equipar Arma", "Equipa el arma mas fuerte automaticamente.", AutoEquipOn, function()
+		AutoEquipOn = not AutoEquipOn
+		PageAimbot()
+	end)
+	ToggleRow("Silent Aim", "Apunta a la cabeza sin mover el mouse.", SilentOn, function()
+		SilentOn = not SilentOn
+		PageAimbot()
+	end)
+	ToggleRow("Aim Assist", "Suaviza la mira hacia el enemigo.", AimOn, function()
+		AimOn = not AimOn
+		PageAimbot()
+	end)
+	Section("HITBOX", "MAS PRECISION, MAS KILLS")
+	Note("Tamano actual: " .. HitboxSize)
+	ToggleRow("Hitbox Expander", "Expande el hitbox del jugador.", HitboxOn, function()
+		HitboxOn = not HitboxOn
+		if HitboxOn then ApplyHitbox() else ClearHitbox() end
+		PageAimbot()
+	end)
+	ToggleRow("Hitbox +", "Hitbox extra para mayor alcance.", false, function()
+		HitboxSize = math.clamp(HitboxSize + 1, 2, 15)
+		if HitboxOn then ApplyHitbox() end
+		PageAimbot()
+	end)
+	ToggleRow("Hitbox -", "Reduce el hitbox para ser mas dificil de detectar.", false, function()
+		HitboxSize = math.clamp(HitboxSize - 1, 2, 15)
+		if HitboxOn then ApplyHitbox() end
+		PageAimbot()
+	end)
+end
+
+local function PageAnimaciones()
+	Clear()
+	Section("ANIMACIONES", "R6")
+	Note("Camina un poco para ver el cambio")
+	ToggleRow("Zombie", "Animacion zombie.", false, function() PlayAnim("Zombie") end)
+	ToggleRow("Ninja", "Animacion ninja.", false, function() PlayAnim("Ninja") end)
+	ToggleRow("Robot", "Animacion robot.", false, function() PlayAnim("Robot") end)
+	ToggleRow("Detener", "Vuelve a la animacion normal.", false, function() StopAnim() end)
+end
+
+local function PageVisuales()
+	Clear()
+	Section("VISUALES", "ESP")
+	ToggleRow("ESP Jugadores", "Resalta a los jugadores.", EspOn, function()
+		EspOn = not EspOn
+		if not EspOn then LimpiarESP() else ActualizarESP() end
+		PageVisuales()
+	end)
+end
+
+local function PageMovimiento()
+	Clear()
+	Section("MOVIMIENTO", "")
+	ToggleRow("Salto Infinito", "Salta sin parar.", JumpOn, function()
+		JumpOn = not JumpOn
+		PageMovimiento()
+	end)
+	ToggleRow("Noclip", "Atravesar paredes.", NoclipOn, function()
+		NoclipOn = not NoclipOn
+		PageMovimiento()
+	end)
+end
+
+local function PageAvatar()
+	Clear()
+	Section("AVATAR", "COPIAR")
+	Note("Escribe el nombre del jugador")
+	local box = Instance.new("TextBox")
+	box.Size = UDim2.new(1, -6, 0, 36)
+	box.BackgroundColor3 = ROW
+	box.PlaceholderText = "Nombre..."
+	box.Text = ""
+	box.TextColor3 = WHITE
+	box.TextSize = 12
+	box.ClearTextOnFocus = false
+	box.Parent = Content
+	Instance.new("UICorner", box).CornerRadius = UDim.new(0, 10)
+	Instance.new("UIStroke", box).Color = PURPLE
+	ToggleRow("Copiar Avatar", "Copia la ropa del jugador.", false, function()
+		local nombre = box.Text
+		if nombre == "" then return end
+		local obj
+		for _, p in ipairs(Players:GetPlayers()) do
+			if string.lower(p.Name) == string.lower(nombre) or string.lower(p.DisplayName) == string.lower(nombre) then
+				obj = p break
+			end
+		end
+		if not obj or not obj.Character or not LocalPlayer.Character then return end
+		local mh = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+		local oh = obj.Character:FindFirstChildOfClass("Humanoid")
+		if mh and oh then
+			pcall(function() mh:ApplyDescription(oh:GetAppliedDescription()) end)
+		end
+	end)
+end
+
+local function PageGraficos()
+	Clear()
+	Section("GRAFICOS", "RENDIMIENTO")
+	ToggleRow("FPS Boost", "Baja calidad para mas FPS.", false, function()
+		for _, v in ipairs(Workspace:GetDescendants()) do
+			if v:IsA("BasePart") then
+				pcall(function() v.Material = Enum.Material.SmoothPlastic end)
+			end
+		end
+		pcall(function() settings().Rendering.QualityLevel = Enum.QualityLevel.Level01 end)
+	end)
+	ToggleRow("Quitar niebla", "Elimina la niebla del mapa.", false, function()
+		local lighting = game:GetService("Lighting")
+		lighting.FogEnd = 100000
+		lighting.FogStart = 100000
+	end)
+	ToggleRow("Fullbright", "Mapa mas iluminado.", false, function()
+		local lighting = game:GetService("Lighting")
+		lighting.Brightness = 2
+		lighting.ClockTime = 14
+		lighting.GlobalShadows = false
+	end)
+end
+
+local t1 = SideBtn("Inicio", 1, PageInicio)
+t1.BackgroundColor3 = Color3.fromRGB(20, 40, 80)
+t1.TextColor3 = CYAN
+SideBtn("Aimbot", 2, PageAimbot)
+SideBtn("Animaciones", 3, PageAnimaciones)
+SideBtn("Visuales", 4, PageVisuales)
+SideBtn("Movimiento", 5, PageMovimiento)
+SideBtn("Avatar", 6, PageAvatar)
+SideBtn("Graficos", 7, PageGraficos)
+
+UIS.JumpRequest:Connect(function()
+	if not JumpOn then return end
+	local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+	if hum then hum:ChangeState(Enum.HumanoidStateType.Jumping) end
+end)
+
+local espT, hbT, shotT = 0, 0, 0
+RunService.RenderSt
